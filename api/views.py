@@ -25,9 +25,9 @@ from rest_framework.response import Response # Importa o Response do DRF, que é
 from rest_framework import status             # Importa códigos de status HTTP (200, 404, 201) para seguir o padrão REST
 from rest_framework.decorators import api_view # Decorador que transforma a função em uma API de fato (adiciona interface e restrição de métodos)
 
-# O decorador @api_view garante que a função só aceite o método GET,
+# O decorador @api_view garante que a função só aceite os métodos GET e POST,
 # além de permitir que a resposta seja formatada automaticamente para JSON ou Web Browsable API.
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def studentsView(request):
     if request.method == 'GET':
         # Recupera todos os objetos do banco de dados (QuerySet)
@@ -41,3 +41,20 @@ def studentsView(request):
         # Seguindo o padrão REST, retornamos os dados serializados (serializer.data)
         # acompanhados do status HTTP 200 OK, confirmando que a requisição teve sucesso.
         return Response(serializer.data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        # Pega os dados brutos enviados no corpo da requisição e joga no Serializer
+        serializer = StudentsSerializer(data=request.data)
+        
+        # Valida se os dados respeitam as regras do modelo (campos obrigatórios, tipos, etc.)
+        if serializer.is_valid():
+            # Se estiver tudo ok, salva no banco de dados
+            serializer.save()
+            # Retorna o objeto criado com o status 201 (Created)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        # Se a validação falhar, imprime o erro no console para debug
+        print(serializer.errors)
+        # Retorna o que deu errado com o status 400 (Bad Request)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+ 
+          
