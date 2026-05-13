@@ -59,7 +59,7 @@ def studentsView(request):
 
 # Decorador que define que esta view só aceita requisições do tipo GET.
 # Se receber POST, retorna automaticamente 405 Method Not Allowed.
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT', 'DELETE'])
 def studentDetailView(request, pk):
     try:
         # Tenta buscar o estudante no banco de dados usando a chave primária (pk) recebida na URL.
@@ -94,5 +94,14 @@ def studentDetailView(request, pk):
         
         # Se inválido, retorna os erros de validação com status 400 Bad Request.
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
+    # Verifica se o método HTTP da requisição é 'DELETE'
+    elif request.method == 'DELETE':
+        # Chama o método .delete() no objeto 'student' (instância do modelo)
+        # para remover o registro correspondente do banco de dados.
+        student.delete()
         
+        # Retorna uma resposta HTTP 204 (No Content), que é o padrão
+        # para deleções bem-sucedidas, indicando que a requisição foi
+        # processada, mas não há conteúdo para enviar de volta no corpo.
+        return Response(status=status.HTTP_204_NO_CONTENT)
