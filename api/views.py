@@ -58,8 +58,8 @@ def studentsView(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Decorador que define que esta view só aceita requisições do tipo GET.
-# Se receber POST/PUT, retorna automaticamente 405 Method Not Allowed.
-@api_view(['GET'])
+# Se receber POST, retorna automaticamente 405 Method Not Allowed.
+@api_view(['GET', 'PUT'])
 def studentDetailView(request, pk):
     try:
         # Tenta buscar o estudante no banco de dados usando a chave primária (pk) recebida na URL.
@@ -78,4 +78,21 @@ def studentDetailView(request, pk):
         
         # Retorna os dados serializados (JSON) com status 200 (OK).
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+    # Verifica se o método da requisição é PUT (atualização completa)
+    elif request.method == 'PUT':
+        # Inicializa o serializer com a instância existente (student) e os novos dados (request.data).
+        # O student garante que estamos atualizando e não criando um novo.
+        serializer = StudentsSerializer(student, data=request.data)
+        
+        # Valida se os dados enviados estão de acordo com as regras do serializer.
+        if serializer.is_valid():
+            # Salva as alterações no banco de dados se os dados forem válidos.
+            serializer.save()
+            
+            # Retorna os dados atualizados com status 200 OK.
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        # Se inválido, retorna os erros de validação com status 400 Bad Request.
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
