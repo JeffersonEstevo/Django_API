@@ -56,5 +56,26 @@ def studentsView(request):
         print(serializer.errors)
         # Retorna o que deu errado com o status 400 (Bad Request)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
- 
-          
+
+# Decorador que define que esta view só aceita requisições do tipo GET.
+# Se receber POST/PUT, retorna automaticamente 405 Method Not Allowed.
+@api_view(['GET'])
+def studentDetailView(request, pk):
+    try:
+        # Tenta buscar o estudante no banco de dados usando a chave primária (pk) recebida na URL.
+        student = Student.objects.get(pk=pk)
+    except Student.DoesNotExist:
+        # Se o estudante não existir, captura o erro e retorna uma resposta 404 (Not Found)
+        # sem quebrar a aplicação.
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    # 4. Verifica se o método é GET (o decorador acima já garante isso, 
+    # mas esta verificação é boa prática caso a lista de métodos no @api_view aumente).
+    if request.method == 'GET':
+        # Instancia o Serializer passando o objeto 'student' encontrado, 
+        # convertendo o model complexo em um formato JSON nativo (serialização).
+        serializer = StudentsSerializer(student)
+        
+        # Retorna os dados serializados (JSON) com status 200 (OK).
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
