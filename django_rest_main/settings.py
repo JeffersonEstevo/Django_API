@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework', # Deve ser adicionado após instalação do djangorestframework
     'students', # Adicionado após criação do app com comando 'python .\manage.py startapp students'
-    'api',
+    'api', # Adicionado para o app principal api
+    'employees', # Adicionado após criação do app com comando 'python .\manage.py startapp employees'
 ]
 
 MIDDLEWARE = [
