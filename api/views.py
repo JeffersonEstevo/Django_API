@@ -20,10 +20,19 @@
     #     return JsonResponse(students_list, safe=False)
 
 from students.models import Student
-from .serializers import StudentsSerializer
+from .serializers import StudentsSerializer, EmployeeSerializer
 from rest_framework.response import Response # Importa o Response do DRF, que é mais inteligente que o JsonResponse comum
-from rest_framework import status             # Importa códigos de status HTTP (200, 404, 201) para seguir o padrão REST
+from rest_framework import status # Importa códigos de status HTTP (200, 404, 201) para seguir o padrão REST
 from rest_framework.decorators import api_view # Decorador que transforma a função em uma API de fato (adiciona interface e restrição de métodos)
+
+# Class-Based Views
+# rest_framework.views: Módulo do DRF que gerencia o ciclo de vida das requisições HTTP da API.
+# APIView: Classe base que gerencia autenticação, permissões e roteamento dos métodos HTTP (GET, POST, etc.).
+from rest_framework.views import APIView 
+
+# employees.models: Módulo da aplicação 'employees' onde as tabelas do banco de dados são estruturadas.
+# Employee: Classe (Model) que permite criar, buscar, atualizar e deletar os registros de funcionários no banco.
+from employees.models import Employee
 
 # O decorador @api_view garante que a função só aceite os métodos GET e POST,
 # além de permitir que a resposta seja formatada automaticamente para JSON ou Web Browsable API.
@@ -105,3 +114,20 @@ def studentDetailView(request, pk):
         # para deleções bem-sucedidas, indicando que a requisição foi
         # processada, mas não há conteúdo para enviar de volta no corpo.
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# Define a classe 'Employees' herdando de 'APIView' para torná-la uma Class-Based View do Django REST Framework.
+class Employees(APIView):
+    
+    # Define o método que intercepta e trata requisições HTTP do tipo GET.
+    def get(self, request):
+        
+        # Busca todos os registros de funcionários cadastrados na tabela do banco de dados utilizando o ORM do Django.
+        employees = Employee.objects.all()
+        
+        # Converte a lista de objetos do banco de dados (QuerySet) em dados nativos do Python (como dicionários).
+        # O argumento 'many=True' avisa ao serializer que ele irá processar múltiplos registros (uma lista), e não apenas um.
+        serializer = EmployeeSerializer(employees, many=True)
+        
+        # Retorna uma resposta HTTP contendo os dados formatados em JSON e o código de status HTTP 200 (OK).
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
