@@ -178,3 +178,32 @@ class EmployeeDetail(APIView):
         
         return Response(serializer.data, status=status.HTTP_200_OK)
         # Retorna a resposta HTTP com os dados serializados do funcionário e um status 200 OK (sucesso).
+
+    def put(self, request, pk): 
+        # Busca o funcionário no banco de dados usando a chave primária (pk) recebida na URL
+        employee = self.get_object(pk) 
+        
+        # Prepara o serializer com os dados atuais do employee e os novos dados enviados na requisição (request.data)
+        serializer = EmployeeSerializer(employee, data=request.data) 
+        
+        # Verifica se os dados enviados respeitam as regras de validação do serializer
+        if serializer.is_valid(): 
+            # Se válidos, salva as alterações (atualiza o registro no banco de dados)
+            serializer.save() 
+            
+            # Retorna os dados atualizados em formato JSON com o status HTTP 200 (OK)
+            return Response(serializer.data, status=status.HTTP_200_OK) 
+        
+        # Se os dados forem inválidos, retorna os erros de validação com o status HTTP 400 (Bad Request)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+
+    def delete(self, request, pk): 
+        # Busca o funcionário no banco de dados usando a chave primária (pk)
+        employee = self.get_object(pk) # Nota: assumido o 'pk' aqui para consistência com o PUT
+        
+        # Remove o registro do banco de dados
+        employee.delete() 
+        
+        # Retorna uma resposta vazia informando que a exclusão foi bem-sucedida com status HTTP 204 (No Content)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
