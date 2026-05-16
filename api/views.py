@@ -24,6 +24,9 @@ from .serializers import StudentsSerializer, EmployeeSerializer
 from rest_framework.response import Response # Importa o Response do DRF, que é mais inteligente que o JsonResponse comum
 from rest_framework import status # Importa códigos de status HTTP (200, 404, 201) para seguir o padrão REST
 from rest_framework.decorators import api_view # Decorador que transforma a função em uma API de fato (adiciona interface e restrição de métodos)
+from django.http import Http404 # Importa a exceção 404 nativa do Django (quando o usuário acessa um endereço que não existe, por exemplo).
+
+
 
 # Class-Based Views
 # rest_framework.views: Módulo do DRF que gerencia o ciclo de vida das requisições HTTP da API.
@@ -132,9 +135,46 @@ class Employees(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request):
+        # Cria o serializer com os dados brutos enviados no corpo da requisição (JSON)
         serializer = EmployeeSerializer(data=request.data)
+        
+        # Verifica se os dados enviados respeitam as regras de validação do modelo/serializer
         if serializer.is_valid():
+            # Se for válido, salva o objeto no banco de dados
             serializer.save()
+            # Retorna os dados salvos e o status HTTP 201 (Created)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        # Se os dados forem inválidos, retorna os erros de validação e o status HTTP 400 (Bad Request)
+        # Nota: Geralmente usa-se serializer.errors aqui para mostrar o que deu errado
         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
+class EmployeeDetail(APIView):
+    # Cria uma classe de visualização (View) baseada no Django REST Framework para lidar com solicitações de um funcionário específico.
     
+    def get_object(self, pk):
+        # Define um método auxiliar para buscar um funcionário específico usando sua Primary Key (pk / ID).
+        
+        try:
+            # Inicia o bloco onde tentaremos executar a lógica de banco de dados.
+
+            return Employee.objects.get(pk=pk)
+            # Faz uma consulta no banco de dados para buscar o funcionário cujo ID (pk) corresponde ao passado na URL.
+            
+        except Employee.DoesNotExist:
+            # Captura a exceção específica do Django caso o funcionário com esse 'pk' não exista no banco de dados.
+            
+            raise Http404
+            # Interrompe a execução e retorna um erro 404 Not Found para o cliente, indicando que o recurso não foi localizado.
+    
+    def get(self, request, pk):
+        # Define o método HTTP GET. Nota: adicionamos 'request' como primeiro argumento, pois ele recebe os dados da requisição HTTP.
+        
+        employee = self.get_object(pk)
+        # Chama o método auxiliar acima para buscar o funcionário específico no banco de dados usando o 'pk'.
+        
+        serializer = EmployeeSerializer(employee)
+        # Instancia o serializador, passando o objeto do funcionário para convertê-lo em um formato compatível com JSON.
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        # Retorna a resposta HTTP com os dados serializados do funcionário e um status 200 OK (sucesso).
