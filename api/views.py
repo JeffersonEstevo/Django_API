@@ -210,6 +210,7 @@ def studentDetailView(request, pk):
 #         # Retorna uma resposta vazia informando que a exclusão foi bem-sucedida com status HTTP 204 (No Content)
 #         return Response(status=status.HTTP_204_NO_CONTENT)
 
+"""
 # Definição da Class Employyes utilizando Mixings
 class Employees(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
     # Define a fonte de dados (queryset) que será utilizada para as operações
@@ -250,4 +251,27 @@ class EmployeeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
     # Trata requisições HTTP DELETE para remover um funcionário específico do banco de dados.
     def delete(self, request, pk):
         return self.destroy(request, pk)
+"""   
+
+# Generics Views
+# Views Genéricas simplificam e reduzem o código repetitivo em APIs REST.
+
+# Classe para lidar com a listagem e criação de funcionários (Collection Endpoint)
+class Employees(generics.ListCreateAPIView):
+    # Define o conjunto de dados base (busca todos os funcionários no banco)
+    queryset = Employee.objects.all()
     
+    # Define a classe que vai converter os dados do banco para JSON e vice-versa
+    serializer_class = EmployeeSerializer
+
+# Classe para lidar com operações focadas em um único funcionário (Instance Endpoint)
+class EmployeeDetail(generics.RetrieveUpdateDestroyAPIView):
+    # Define o conjunto de dados base onde a busca do elemento específico será feita
+    queryset = Employee.objects.all()
+    
+    # Define a classe que vai converter os dados do registro específico para JSON
+    serializer_class = EmployeeSerializer
+    
+    # Informa ao DRF qual campo do banco de dados usar para localizar o funcionário na URL
+    # 'pk' significa Primary Key (o ID numérico padrão do Django). Exemplo: /employees/1/
+    lookup_field = 'pk'
