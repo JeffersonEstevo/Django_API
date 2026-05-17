@@ -279,7 +279,7 @@ class EmployeeDetail(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'pk'
 """
 
-
+"""
 # Viewsets
 # Define uma ViewSet básica que herda diretamente da classe genérica 'ViewSet'.
 # Diferente de uma 'ModelViewSet', esta exige que você escreva a lógica de cada ação manualmente.
@@ -358,3 +358,17 @@ class EmployeeViewset(viewsets.ViewSet):
         # Retorna uma resposta sem corpo de texto com o status HTTP 204 No Content, que sinaliza sucesso na remoção.
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+"""
+
+# Podemos encurtar as Viewsets acima com o seguinte Model Viewset
+# Ao herdar de 'ModelViewSet', a classe ganha automaticamente TODAS as lógicas de CRUDL de fábrica.
+# Ela elimina a necessidade de escrever os métodos list(), create(), retrieve(), update() e destroy() manualmente.
+class EmployeeViewset(viewsets.ModelViewSet):
+    
+    # Define a fonte de dados padrão. O ModelViewSet usa essa linha para saber em qual tabela buscar os dados,
+    # fazendo as consultas do banco de dados (QuerySets) automaticamente para cada um dos métodos internos.
+    queryset = Employee.objects.all()
+    
+    # Define o serializador padrão. O ModelViewSet usa essa classe de forma automática para validar os dados
+    # recebidos (no POST/PUT) e transformar os objetos do banco em formato JSON (no GET).
+    serializer_class = EmployeeSerializer
