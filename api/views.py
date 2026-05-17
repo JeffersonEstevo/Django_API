@@ -318,8 +318,43 @@ class EmployeeViewset(viewsets.ViewSet):
         # Se a validação falhar, retorna os erros gerados (ex: "campo obrigatório ausente") com o status padrão 400 (Bad Request).
         return Response(serializer.errors)
     
+     # Método responsável por responder a requisições HTTP GET para um registro específico (ex: /employees/1/).
     def retrieve(self, request, pk=None):
+        # Busca o funcionário pelo ID (pk). Se não encontrar, interrompe o código e retorna um erro 404 (Não Encontrado) automaticamente.
         employee = get_object_or_404(Employee, pk=pk)
+        
+        # Instancia o serializador passando apenas o objeto do funcionário encontrado para convertê-lo em JSON.
         serializer = EmployeeSerializer(employee)
+        
+        # Retorna os dados convertidos com o status HTTP 200 OK confirmando o sucesso da busca.
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    # Método responsável por responder a requisições HTTP PUT para atualizar um registro específico (ex: /employees/1/).
+    def update(self, request, pk=None):
+        # Busca o funcionário existente no banco de dados; retorna 404 se ele não existir.
+        employee = get_object_or_404(Employee, pk=pk)
+        
+        # Passa o objeto do banco E os novos dados recebidos do cliente (request.data) para que o serializador faça a substituição.
+        serializer = EmployeeSerializer(employee, data=request.data)
+        
+        # Valida se os novos dados enviados atendem a todos os requisitos e regras do modelo.
+        if serializer.is_valid():
+            # Atualiza e salva as novas informações deste funcionário diretamente no banco de dados.
+            serializer.save()
+            # Retorna o registro do funcionário com as informações já atualizadas.
+            return Response(serializer.data)
+        
+        # Se os dados enviados forem inválidos, retorna a lista de erros de validação.
+        return Response(serializer.errors)
+    
+    # Método responsável por responder a requisições HTTP DELETE para remover um registro específico (ex: /employees/1/).
+    def delete(self, request, pk=None):
+        # Busca o funcionário pelo ID correspondente antes de prosseguir; impede o erro se o registro não existir.
+        employee = get_object_or_404(Employee, pk=pk)
+        
+        # Executa a exclusão definitiva do registro do funcionário na tabela do banco de dados.
+        employee.delete()
+        
+        # Retorna uma resposta sem corpo de texto com o status HTTP 204 No Content, que sinaliza sucesso na remoção.
+        return Response(status=status.HTTP_204_NO_CONTENT)
     
