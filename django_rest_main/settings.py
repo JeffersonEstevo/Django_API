@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os # Necessário para usar os.getenv()
+from dotenv import load_dotenv # Importe a função. Necessário para usar os.getenv()
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,14 +22,29 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
+env_path = BASE_DIR / 'dotenv_files' / '.env'
+# Carrega o .env da raiz do projeto
+load_dotenv(dotenv_path=env_path)
+#print(f"--- DEBUG NO AMBIENTE: {os.getenv('DEBUG')} ---")
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-m8t%j6tn*^#_y#9kr^0e()c==(0iu$zvj#v_#2a^%ok2=8o#oy'
+# Recupera a chave secreta do sistema. O padrão 'change-me' avisa que a troca é obrigatória em produção.
+SECRET_KEY = os.getenv('SECRET_KEY', 'change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Define se o modo debug está ativo (True) ou não (False) com base na variável de ambiente
+DEBUG = bool(int(os.getenv('DEBUG', 0)))
 
-ALLOWED_HOSTS = []
+# Lê ALLOWED_HOSTS do ambiente, separa por vírgulas, remove espaços extras 
+# e ignora entradas vazias para evitar erros de segurança.
 
+# ALLOWED_HOSTS = [
+#     h.strip() for h in os.getenv("ALLOWED_HOSTS", '').split(',')
+#     if h.strip()
+# ]
+
+# FORÇANDO ALLOWED_HOSTS PARA TESTE
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 # Application definition
 
