@@ -19,6 +19,7 @@
     #     # dicionário (dict). Como estamos enviando uma lista (list), precisamos desativar essa trava.
     #     return JsonResponse(students_list, safe=False)
 
+from django.shortcuts import render, get_object_or_404 # get_object_or_404 adicionado para Viewset
 from students.models import Student
 from .serializers import StudentsSerializer, EmployeeSerializer
 from rest_framework.response import Response # Importa o Response do DRF, que é mais inteligente que o JsonResponse comum
@@ -316,3 +317,9 @@ class EmployeeViewset(viewsets.ViewSet):
         
         # Se a validação falhar, retorna os erros gerados (ex: "campo obrigatório ausente") com o status padrão 400 (Bad Request).
         return Response(serializer.errors)
+    
+    def retrieve(self, request, pk=None):
+        employee = get_object_or_404(Employee, pk=pk)
+        serializer = EmployeeSerializer(employee)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
