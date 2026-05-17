@@ -38,6 +38,7 @@ DEBUG = bool(int(os.getenv('DEBUG', 0)))
 # Lê ALLOWED_HOSTS do ambiente, separa por vírgulas, remove espaços extras 
 # e ignora entradas vazias para evitar erros de segurança.
 
+# Para Docker
 # ALLOWED_HOSTS = [
 #     h.strip() for h in os.getenv("ALLOWED_HOSTS", '').split(',')
 #     if h.strip()
