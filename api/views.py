@@ -25,7 +25,10 @@ from rest_framework.response import Response # Importa o Response do DRF, que é
 from rest_framework import status # Importa códigos de status HTTP (200, 404, 201) para seguir o padrão REST
 from rest_framework.decorators import api_view # Decorador que transforma a função em uma API de fato (adiciona interface e restrição de métodos)
 from django.http import Http404 # Importa a exceção 404 nativa do Django (quando o usuário acessa um endereço que não existe, por exemplo).
-
+# Importa os mixins e generics do Django Rest Framework (DRF)
+# 'mixins' fornece os métodos de ação (list, create, retrieve, update, destroy)
+# 'generics' fornece classes base e views prontas para reduzir a repetição de código (DRY)
+from rest_framework import mixins, generics
 
 
 # Class-Based Views
@@ -118,92 +121,112 @@ def studentDetailView(request, pk):
         # processada, mas não há conteúdo para enviar de volta no corpo.
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# Define a classe 'Employees' herdando de 'APIView' para torná-la uma Class-Based View do Django REST Framework.
-class Employees(APIView):
+# # Define a classe 'Employees' herdando de 'APIView' para torná-la uma Class-Based View do Django REST Framework.
+# class Employees(APIView):
     
-    # Define o método que intercepta e trata requisições HTTP do tipo GET.
+#     # Define o método que intercepta e trata requisições HTTP do tipo GET.
+#     def get(self, request):
+        
+#         # Busca todos os registros de funcionários cadastrados na tabela do banco de dados utilizando o ORM do Django.
+#         employees = Employee.objects.all()
+        
+#         # Converte a lista de objetos do banco de dados (QuerySet) em dados nativos do Python (como dicionários).
+#         # O argumento 'many=True' avisa ao serializer que ele irá processar múltiplos registros (uma lista), e não apenas um.
+#         serializer = EmployeeSerializer(employees, many=True)
+        
+#         # Retorna uma resposta HTTP contendo os dados formatados em JSON e o código de status HTTP 200 (OK).
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+#     def post(self, request):
+#         # Cria o serializer com os dados brutos enviados no corpo da requisição (JSON)
+#         serializer = EmployeeSerializer(data=request.data)
+        
+#         # Verifica se os dados enviados respeitam as regras de validação do modelo/serializer
+#         if serializer.is_valid():
+#             # Se for válido, salva o objeto no banco de dados
+#             serializer.save()
+#             # Retorna os dados salvos e o status HTTP 201 (Created)
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+#         # Se os dados forem inválidos, retorna os erros de validação e o status HTTP 400 (Bad Request)
+#         # Nota: Geralmente usa-se serializer.errors aqui para mostrar o que deu errado
+#         return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
+# class EmployeeDetail(APIView):
+#     # Cria uma classe de visualização (View) baseada no Django REST Framework para lidar com solicitações de um funcionário específico.
+    
+#     def get_object(self, pk):
+#         # Define um método auxiliar para buscar um funcionário específico usando sua Primary Key (pk / ID).
+        
+#         try:
+#             # Inicia o bloco onde tentaremos executar a lógica de banco de dados.
+
+#             return Employee.objects.get(pk=pk)
+#             # Faz uma consulta no banco de dados para buscar o funcionário cujo ID (pk) corresponde ao passado na URL.
+            
+#         except Employee.DoesNotExist:
+#             # Captura a exceção específica do Django caso o funcionário com esse 'pk' não exista no banco de dados.
+            
+#             raise Http404
+#             # Interrompe a execução e retorna um erro 404 Not Found para o cliente, indicando que o recurso não foi localizado.
+    
+#     def get(self, request, pk):
+#         # Define o método HTTP GET. Nota: adicionamos 'request' como primeiro argumento, pois ele recebe os dados da requisição HTTP.
+        
+#         employee = self.get_object(pk)
+#         # Chama o método auxiliar acima para buscar o funcionário específico no banco de dados usando o 'pk'.
+        
+#         serializer = EmployeeSerializer(employee)
+#         # Instancia o serializador, passando o objeto do funcionário para convertê-lo em um formato compatível com JSON.
+        
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+#         # Retorna a resposta HTTP com os dados serializados do funcionário e um status 200 OK (sucesso).
+
+#     def put(self, request, pk): 
+#         # Busca o funcionário no banco de dados usando a chave primária (pk) recebida na URL
+#         employee = self.get_object(pk) 
+        
+#         # Prepara o serializer com os dados atuais do employee e os novos dados enviados na requisição (request.data)
+#         serializer = EmployeeSerializer(employee, data=request.data) 
+        
+#         # Verifica se os dados enviados respeitam as regras de validação do serializer
+#         if serializer.is_valid(): 
+#             # Se válidos, salva as alterações (atualiza o registro no banco de dados)
+#             serializer.save() 
+            
+#             # Retorna os dados atualizados em formato JSON com o status HTTP 200 (OK)
+#             return Response(serializer.data, status=status.HTTP_200_OK) 
+        
+#         # Se os dados forem inválidos, retorna os erros de validação com o status HTTP 400 (Bad Request)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+
+#     def delete(self, request, pk): 
+#         # Busca o funcionário no banco de dados usando a chave primária (pk)
+#         employee = self.get_object(pk) # Nota: assumido o 'pk' aqui para consistência com o PUT
+        
+#         # Remove o registro do banco de dados
+#         employee.delete() 
+        
+#         # Retorna uma resposta vazia informando que a exclusão foi bem-sucedida com status HTTP 204 (No Content)
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# Definição da Class Employyes utilizando Mixings
+class Employees(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    # Define a fonte de dados (queryset) que será utilizada para as operações
+    queryset = Employee.objects.all()
+    
+    # Define o serializer responsável pela validação e serialização dos dados
+    serializer_class = EmployeeSerializer
+
+    # Manipula requisições HTTP GET para listar todos os funcionários
     def get(self, request):
-        
-        # Busca todos os registros de funcionários cadastrados na tabela do banco de dados utilizando o ORM do Django.
-        employees = Employee.objects.all()
-        
-        # Converte a lista de objetos do banco de dados (QuerySet) em dados nativos do Python (como dicionários).
-        # O argumento 'many=True' avisa ao serializer que ele irá processar múltiplos registros (uma lista), e não apenas um.
-        serializer = EmployeeSerializer(employees, many=True)
-        
-        # Retorna uma resposta HTTP contendo os dados formatados em JSON e o código de status HTTP 200 (OK).
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
+        # Utiliza o método 'list' provido pelo mixin ListModelMixin
+        return self.list(request) 
+
+    # Manipula requisições HTTP POST para criar um novo funcionário
     def post(self, request):
-        # Cria o serializer com os dados brutos enviados no corpo da requisição (JSON)
-        serializer = EmployeeSerializer(data=request.data)
-        
-        # Verifica se os dados enviados respeitam as regras de validação do modelo/serializer
-        if serializer.is_valid():
-            # Se for válido, salva o objeto no banco de dados
-            serializer.save()
-            # Retorna os dados salvos e o status HTTP 201 (Created)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-        # Se os dados forem inválidos, retorna os erros de validação e o status HTTP 400 (Bad Request)
-        # Nota: Geralmente usa-se serializer.errors aqui para mostrar o que deu errado
-        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
-
-class EmployeeDetail(APIView):
-    # Cria uma classe de visualização (View) baseada no Django REST Framework para lidar com solicitações de um funcionário específico.
+        # Utiliza o método 'create' provido pelo mixin CreateModelMixin
+        return self.create(request)
     
-    def get_object(self, pk):
-        # Define um método auxiliar para buscar um funcionário específico usando sua Primary Key (pk / ID).
-        
-        try:
-            # Inicia o bloco onde tentaremos executar a lógica de banco de dados.
-
-            return Employee.objects.get(pk=pk)
-            # Faz uma consulta no banco de dados para buscar o funcionário cujo ID (pk) corresponde ao passado na URL.
-            
-        except Employee.DoesNotExist:
-            # Captura a exceção específica do Django caso o funcionário com esse 'pk' não exista no banco de dados.
-            
-            raise Http404
-            # Interrompe a execução e retorna um erro 404 Not Found para o cliente, indicando que o recurso não foi localizado.
-    
-    def get(self, request, pk):
-        # Define o método HTTP GET. Nota: adicionamos 'request' como primeiro argumento, pois ele recebe os dados da requisição HTTP.
-        
-        employee = self.get_object(pk)
-        # Chama o método auxiliar acima para buscar o funcionário específico no banco de dados usando o 'pk'.
-        
-        serializer = EmployeeSerializer(employee)
-        # Instancia o serializador, passando o objeto do funcionário para convertê-lo em um formato compatível com JSON.
-        
-        return Response(serializer.data, status=status.HTTP_200_OK)
-        # Retorna a resposta HTTP com os dados serializados do funcionário e um status 200 OK (sucesso).
-
-    def put(self, request, pk): 
-        # Busca o funcionário no banco de dados usando a chave primária (pk) recebida na URL
-        employee = self.get_object(pk) 
-        
-        # Prepara o serializer com os dados atuais do employee e os novos dados enviados na requisição (request.data)
-        serializer = EmployeeSerializer(employee, data=request.data) 
-        
-        # Verifica se os dados enviados respeitam as regras de validação do serializer
-        if serializer.is_valid(): 
-            # Se válidos, salva as alterações (atualiza o registro no banco de dados)
-            serializer.save() 
-            
-            # Retorna os dados atualizados em formato JSON com o status HTTP 200 (OK)
-            return Response(serializer.data, status=status.HTTP_200_OK) 
-        
-        # Se os dados forem inválidos, retorna os erros de validação com o status HTTP 400 (Bad Request)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
-
-    def delete(self, request, pk): 
-        # Busca o funcionário no banco de dados usando a chave primária (pk)
-        employee = self.get_object(pk) # Nota: assumido o 'pk' aqui para consistência com o PUT
-        
-        # Remove o registro do banco de dados
-        employee.delete() 
-        
-        # Retorna uma resposta vazia informando que a exclusão foi bem-sucedida com status HTTP 204 (No Content)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
+class EmployeeDetail(generics.GenericAPIView):
+    pass
