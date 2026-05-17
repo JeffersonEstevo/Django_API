@@ -28,7 +28,7 @@ from django.http import Http404 # Importa a exceção 404 nativa do Django (quan
 # Importa os mixins e generics do Django Rest Framework (DRF)
 # 'mixins' fornece os métodos de ação (list, create, retrieve, update, destroy)
 # 'generics' fornece classes base e views prontas para reduzir a repetição de código (DRY)
-from rest_framework import mixins, generics
+from rest_framework import mixins, generics, viewsets
 
 
 # Class-Based Views
@@ -253,6 +253,7 @@ class EmployeeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.
         return self.destroy(request, pk)
 """   
 
+"""
 # Generics Views
 # Views Genéricas simplificam e reduzem o código repetitivo em APIs REST.
 
@@ -275,3 +276,43 @@ class EmployeeDetail(generics.RetrieveUpdateDestroyAPIView):
     # Informa ao DRF qual campo do banco de dados usar para localizar o funcionário na URL
     # 'pk' significa Primary Key (o ID numérico padrão do Django). Exemplo: /employees/1/
     lookup_field = 'pk'
+"""
+
+
+# Viewsets
+# Define uma ViewSet básica que herda diretamente da classe genérica 'ViewSet'.
+# Diferente de uma 'ModelViewSet', esta exige que você escreva a lógica de cada ação manualmente.
+class EmployeeViewset(viewsets.ViewSet):
+    
+    # Método responsável por responder a requisições HTTP GET na raiz do endpoint (ex: /employees/).
+    # Ele substitui a lógica que normalmente ficaria em uma função de listagem ou no método get().
+    def list(self, request):
+        
+        # Busca todos os registros da tabela Employee no banco de dados.
+        queryset = Employee.objects.all()
+        
+        # Instancia o serializador passando a lista de funcionários.
+        # O argumento 'many=True' avisa ao Django que ele está processando uma lista (múltiplos objetos) e não apenas um registro.
+        serializer = EmployeeSerializer(queryset, many=True)
+        
+        # Retorna uma resposta HTTP 200 OK contendo os dados já convertidos para o formato JSON (dentro de serializer.data).
+        return Response(serializer.data)
+    
+    # Método responsável por responder a requisições HTTP POST no endpoint (ex: /employees/).
+    # Ele lida com o recebimento de novos dados e a criação do registro no banco.
+    def create(self, request):
+        
+        # Instancia o serializador passando os dados enviados pelo cliente no corpo da requisição (request.data).
+        serializer = EmployeeSerializer(data=request.data)
+        
+        # Valida os dados recebidos com base nas regras definidas no EmployeeSerializer (ex: campos obrigatórios, tipos de dados).
+        if serializer.is_valid():
+            
+            # Salva o novo registro de funcionário diretamente no banco de dados.
+            serializer.save()
+            
+            # Retorna os dados do funcionário recém-criado em formato JSON com o status HTTP 201 (Created).
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        # Se a validação falhar, retorna os erros gerados (ex: "campo obrigatório ausente") com o status padrão 400 (Bad Request).
+        return Response(serializer.errors)
