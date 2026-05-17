@@ -228,5 +228,26 @@ class Employees(mixins.ListModelMixin, mixins.CreateModelMixin, generics.Generic
         # Utiliza o método 'create' provido pelo mixin CreateModelMixin
         return self.create(request)
     
-class EmployeeDetail(generics.GenericAPIView):
-    pass
+# Esta classe define uma view baseada em classe (CBV) para gerenciar um funcionário específico.
+# Ela herda mixins que fornecem as ações padrão de ler, atualizar e deletar um registro.
+# Operações que necessitam de uma chave primária
+class EmployeeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    
+    # Define a fonte de dados (banco de dados) que a view irá consultar.
+    queryset = Employee.objects.all()
+    
+    # Define a classe responsável por converter o modelo Employee em JSON e vice-versa.
+    serializer_class = EmployeeSerializer
+
+    # Trata requisições HTTP GET para buscar (exibir) os detalhes de um funcionário específico usando a chave primária (pk).
+    def get(self, request, pk):
+        return self.retrieve(request, pk)
+    
+    # Trata requisições HTTP PUT para atualizar todos os dados de um funcionário específico.
+    def put(self, request, pk):
+        return self.update(request, pk)
+
+    # Trata requisições HTTP DELETE para remover um funcionário específico do banco de dados.
+    def delete(self, request, pk):
+        return self.destroy(request, pk)
+    
