@@ -17,6 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include # include adicionado ao adicionar app com comando 'python .\manage.py startapp students'
 
+
+from django.conf import settings # Necessário para carregamento de arquivos estáticoss
+from django.conf.urls.static import static # Necessário para carregamento de arquivos estáticoss
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     # Web application endpoint
@@ -25,3 +29,7 @@ urlpatterns = [
     # API Endpoints
     path('api/v1/', include('api.urls'))
 ]
+
+# Adicionado para carregamento de arquivos estáticos
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

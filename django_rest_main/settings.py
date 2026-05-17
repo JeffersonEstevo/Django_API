@@ -21,7 +21,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
-
 env_path = BASE_DIR / 'dotenv_files' / '.env'
 # Carrega o .env da raiz do projeto
 load_dotenv(dotenv_path=env_path)
@@ -45,7 +44,11 @@ DEBUG = bool(int(os.getenv('DEBUG', 0)))
 # ]
 
 # FORÇANDO ALLOWED_HOSTS PARA TESTE
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [
+    
+]
+
+
 
 # Application definition
 
@@ -137,4 +140,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+#STATIC_URL = 'static/'
+
+# Arquivos estáticos
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',  # pasta onde você coloca seus próprios arquivos estáticos
+]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
