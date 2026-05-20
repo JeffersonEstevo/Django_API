@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'students', # Adicionado após criação do app com comando 'python .\manage.py startapp students'
     'api', # Adicionado para o app principal api
     'employees', # Adicionado após criação do app com comando 'python .\manage.py startapp employees'
+    'blogs' # Adicionado após criação do app com comando 'python .\manage.py startapp blogs
 ]
 
 MIDDLEWARE = [
