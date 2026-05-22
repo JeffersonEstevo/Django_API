@@ -45,6 +45,18 @@ urlpatterns = [
     # Mapeia a URL '/comments/' para a view que lista e cria comentários de forma geral.
     path('comments/', views.CommentsView.as_view()),
 
+    
+    # Rota para a página de detalhes de um blog específico. 
+    # O '<int:pk>' captura um número inteiro da URL e o passa como 'pk' (Primary Key) 
+    # para a view 'BlogDetailView', que busca e exibe aquele blog específico.
+    path('blogs/<int:pk>/', views.BlogDetailView.as_view()),
+
+    # Rota para a página de detalhes de um comentário específico.
+    # Similar à linha anterior, extrai um inteiro da URL e o envia como 'pk'
+    # para a view 'CommentDetailView', permitindo visualizar, editar ou deletar 
+    # aquele comentário em questão.
+    path('comments/<int:pk>/', views.CommentDetailView.as_view()),
+
 ]
  
 
