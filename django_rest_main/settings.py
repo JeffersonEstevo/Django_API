@@ -153,3 +153,21 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Define o tipo de campo de chave primária padrão para novos modelos.
+# O 'BigAutoField' gera números inteiros de 64 bits automaticamente.
+# Nota: Não afeta diretamente a paginação, mas gerencia IDs grandes no banco.
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Configurações globais do Django REST Framework (DRF).
+REST_FRAMEWORK = {
+    # Define o estilo de paginação padrão para toda a API.
+    # O 'LimitOffsetPagination' divide os dados usando dois parâmetros na URL:
+    # 'limit' (quantos itens trazer) e 'offset' (a partir de qual posição começar).
+    # Exemplo: ?limit=2&offset=4 (pula os 4 primeiros itens e traz os próximos 2).
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    
+    # Determina a quantidade estrita de itens exibidos por página.
+    # Neste caso, cada resposta de lista retornará no máximo 2 registros.
+    'PAGE_SIZE': 2,
+}
