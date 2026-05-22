@@ -36,7 +36,14 @@ urlpatterns = [
 
     # Inclui todas as URLs geradas automaticamente pelo roteador no padrão de caminhos da aplicação.
     # O caminho '' vazio significa que as rotas do roteador começam diretamente na raiz deste arquivo de URLs.
-    path('', include(router.urls)) # Rota do Viewset
+    path('', include(router.urls)), # Rota do Viewset
+
+    # Mapeia a URL '/blogs/' para a view que lista e cria blogs.
+    # .as_view(): transforma a classe da APIView em uma função que o Django consegue executar.
+    path('blogs/', views.BlogsView.as_view()),
+    
+    # Mapeia a URL '/comments/' para a view que lista e cria comentários de forma geral.
+    path('comments/', views.CommentsView.as_view()),
 
 ]
  

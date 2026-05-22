@@ -9,7 +9,10 @@ class Blog(models.Model):  # Cria a tabela 'Blog' no banco de dados
 
 class Comment(models.Model):  # Cria a tabela 'Comment' (comentários)
     # Cria uma relação: cada comentário pertence a um Blog. Se o Blog for deletado, os comentários também são (CASCADE)
-    blog = models.ForeignKey(Blog, on_delete=models.CASCADE) 
+    # Define uma relação de chave estrangeira onde cada comentário pertence a um blog.
+    # related_name='comments': Cria um "atalho" ou relação reversa no modelo Blog.
+    # Isso permite acessar todos os comentários de um blog usando 'blog.comments.all()'.
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='comments') 
     
     comment = models.TextField()  # Cria um campo de texto longo para o comentário (faltou os parênteses no seu original)
     

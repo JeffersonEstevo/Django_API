@@ -41,6 +41,9 @@ from rest_framework.views import APIView
 # Employee: Classe (Model) que permite criar, buscar, atualizar e deletar os registros de funcionários no banco.
 from employees.models import Employee
 
+from blogs.models import Blog, Comment # Adicionado para classes Blog e comment
+from blogs.serializers import BlogSerializer, CommentSerializer # Adicionado para classes Blog e comment
+
 # O decorador @api_view garante que a função só aceite os métodos GET e POST,
 # além de permitir que a resposta seja formatada automaticamente para JSON ou Web Browsable API.
 @api_view(['GET', 'POST'])
@@ -372,3 +375,16 @@ class EmployeeViewset(viewsets.ModelViewSet):
     # Define o serializador padrão. O ModelViewSet usa essa classe de forma automática para validar os dados
     # recebidos (no POST/PUT) e transformar os objetos do banco em formato JSON (no GET).
     serializer_class = EmployeeSerializer
+
+# generics.ListCreateAPIView ativa automaticamente os métodos HTTP GET (lista) e POST (criação).
+class BlogsView(generics.ListCreateAPIView):
+    # Define a base de dados (todos os registros) que a view irá consultar.
+    queryset = Blog.objects.all()
+    # Especifica o serializer que vai validar a entrada (POST) e estruturar a saída (GET).
+    serializer_class = BlogSerializer
+
+class CommentsView(generics.ListCreateAPIView):
+    # Define a base de dados contendo todos os comentários cadastrados.
+    queryset = Comment.objects.all()
+    # Especifica o serializer responsável por processar os dados dos comentários.
+    serializer_class = CommentSerializer
