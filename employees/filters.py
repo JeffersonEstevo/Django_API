@@ -20,7 +20,13 @@ class EmployeeFilter(django_filters.FilterSet):
     # RangeFilter: Cria automaticamente dois campos de busca na API para trabalhar com intervalos (Mínimo e Máximo).
     # Na prática, gera os parâmetros de URL: '?id_min=valor' e '?id_max=valor'.
     # Exemplo: /api/employees/?id_min=10&id_max=20 (Retorna os funcionários com IDs de 10 a 20).
-    id = django_filters.RangeFilter(field_name='id')
+    #id = django_filters.RangeFilter(field_name='id')
+
+    # method='filter_by_id_range': Indica que a filtragem não será automática; o Django chamará a função 
+    # 'filter_by_id_range' para processar o valor.
+    # label: Altera o texto de exibição que aparece na interface visual da API (Django Browseable API).
+    id_min = django_filters.CharFilter(method='filter_by_id_range', label='From EMP ID')
+    id_max = django_filters.CharFilter(method='filter_by_id_range', label='To EMP ID')
 
     # --- OUTROS EXEMPLOS ÚTEIS QUE VOCÊ PODE ADICIONAR ---
     
@@ -47,4 +53,26 @@ class EmployeeFilter(django_filters.FilterSet):
         # Garante que o campo customizado 'emp_name' seja reconhecido e exibida na interface da API
         # Adicionado id para mapear o RangeFilter na estrutura do FilterSet.
         # Permite que a API reconheça as propriedades de intervalo para a chave primária (ID).
-        fields = ['designation', 'emp_name', 'id']
+        #fields = ['designation', 'emp_name', 'id']
+        
+        # Registra os parâmetros customizados 'id_min' e 'id_max' na estrutura do FilterSet.
+        # Necessário para que a API reconheça e exponha essas duas chaves na URL e nos formulários.
+        fields = ['designation', 'emp_name', 'id_min', 'id_max']
+
+    # Este método é executado automaticamente quando 'id_min' ou 'id_max' são passados na URL.
+    # Parâmetros recebidos pelo Django:
+    # - queryset: A lista atual de resultados do banco de dados antes deste filtro ser aplicado.
+    # - name: O nome do filtro que chamou o método (receberá a string 'id_min' ou 'id_max').
+    # - value: O valor digitado pelo usuário na URL (ex: o ID '10').
+    def filter_by_id_range(self, queryset, name, value):
+        # Se a URL contiver '?id_min=X', filtra funcionários com emp_id MAIOR OU IGUAL (gte) a X.
+        if name == 'id_min':
+            return queryset.filter(emp_id__gte=value)
+        
+        # Se a URL contiver '?id_max=Y', filtra funcionários com emp_id MENOR OU IGUAL (lte) a Y.
+        elif name == 'id_max':
+            return queryset.filter(emp_id__lte=value)
+        
+        # Se o nome do filtro não corresponder a nenhum, retorna a lista original sem alterações.
+        return queryset
+    
