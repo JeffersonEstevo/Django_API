@@ -176,5 +176,10 @@ REST_FRAMEWORK = {
     # utilizando os parâmetros da URL (ex: /api/produtos/?categoria=eletronicos).
     # Foi necessário registrar aqui para que o django-filter se integre nativamente com o
     # Django REST Framework em todas as Views sem precisar declarar em cada uma delas.
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+
+    # Altera o nome do parâmetro que o usuário digita na URL para realizar a pesquisa.
+    # Por padrão o Django usa '?search=termo'. Com essa configuração, ele passa a aceitar '?q=termo'.
+    # Exemplo prático na URL: /api/blogs/?q=tecnologia
+    'SEARCH_PARAM': 'q'
 }

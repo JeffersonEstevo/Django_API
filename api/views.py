@@ -52,6 +52,10 @@ from .paginations import CustomPagination # Utilizado para paginação dos Funci
 # (como busca sem distinção de maiúsculas/minúsculas: iexact).
 from employees.filters import EmployeeFilter
 
+# Importa o SearchFilter, uma classe nativa do REST Framework para busca textual simples.
+# Diferente do django-filter (que busca por campos exatos), o SearchFilter funciona como um buscador de "barra de pesquisa".
+from rest_framework.filters import SearchFilter
+
 # O decorador @api_view garante que a função só aceite os métodos GET e POST,
 # além de permitir que a resposta seja formatada automaticamente para JSON ou Web Browsable API.
 @api_view(['GET', 'POST'])
@@ -405,6 +409,13 @@ class BlogsView(generics.ListCreateAPIView):
     queryset = Blog.objects.all()
     # Especifica o serializer que vai validar a entrada (POST) e estruturar a saída (GET).
     serializer_class = BlogSerializer
+
+    # Define que esta View usará especificamente o mecanismo de busca textual (SearchFilter) como seu backend.
+    filter_backends = [SearchFilter]
+    # Especifica em quais colunas do banco de dados a pesquisa digitada pelo usuário será realizada.
+    # '^blog_title': O símbolo '^' aplica uma busca do tipo "começa com" (starts-with). O título deve iniciar com o termo buscado.
+    # 'blog_body': Sem símbolos, aplica uma busca padrão do tipo "contém" (icontains) em qualquer parte do corpo do texto.
+    search_fields = ['^blog_title', 'blog_body']
 
 class CommentsView(generics.ListCreateAPIView):
     # Define a base de dados contendo todos os comentários cadastrados.
