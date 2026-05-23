@@ -47,6 +47,11 @@ from blogs.serializers import BlogSerializer, CommentSerializer # Adicionado par
 # Importa a classe de paginação customizada que foi criado no arquivo 'paginations.py'.
 from .paginations import CustomPagination # Utilizado para paginação dos Funcionários (Employees)
 
+# Importa a classe de filtro customizada (EmployeeFilter) para que esta View 
+# possa aplicar as regras complexas de busca definidas no arquivo filters.py 
+# (como busca sem distinção de maiúsculas/minúsculas: iexact).
+from employees.filters import EmployeeFilter
+
 # O decorador @api_view garante que a função só aceite os métodos GET e POST,
 # além de permitir que a resposta seja formatada automaticamente para JSON ou Web Browsable API.
 @api_view(['GET', 'POST'])
@@ -384,7 +389,14 @@ class EmployeeViewset(viewsets.ModelViewSet):
 
     # Define quais campos do modelo estarão disponíveis para filtragem na URL da API.
     # Exemplo de uso na requisição: /api/sua-rota/?designation=valor
-    filterset_fields = ['designation']
+    #filterset_fields = ['designation']
+
+    # SUBSTITUIÇÃO DE ATRIBUTO DE FILTRAGEM:
+    # Remove-se 'filterset_fields' e adiciona-se 'filterset_class'.
+    # Motivo: 'filterset_fields' permite apenas filtros simples e exatos do Django.
+    # Ao mudar para 'filterset_class', vinculamos a View à classe customizada 'EmployeeFilter',
+    # ativando comportamentos avançados (como o 'iexact' para ignorar maiúsculas/minúsculas).
+    filterset_class = EmployeeFilter
 
 
 # generics.ListCreateAPIView ativa automaticamente os métodos HTTP GET (lista) e POST (criação).

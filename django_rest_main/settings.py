@@ -170,7 +170,7 @@ REST_FRAMEWORK = {
     
     # Determina a quantidade estrita de itens exibidos por página.
     # Neste caso, cada resposta de lista retornará no máximo 2 registros.
-    'PAGE_SIZE': 2,
+    'PAGE_SIZE': 4,
 
     # O filtro global foi adicionado para permitir a filtragem automática de queries na API
     # utilizando os parâmetros da URL (ex: /api/produtos/?categoria=eletronicos).
