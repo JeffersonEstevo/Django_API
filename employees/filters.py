@@ -12,6 +12,16 @@ class EmployeeFilter(django_filters.FilterSet):
     # lookup_expr='iexact': Define a expressão de busca como "texto exato", mas ignora maiúsculas/minúsculas (Case-Insensitive).
     designation = django_filters.CharFilter(field_name='designation', lookup_expr='iexact')
 
+    # field_name='emp_name': Aponta para a coluna 'emp_name' na tabela Employee do banco de dados.
+    # lookup_expr='icontains': Transforma a busca em um "CONTÉM" que ignora maiúsculas/minúsculas (Case-Insensitive).
+    # Exemplo: Se buscar por 'jo', a API vai retornar 'João', 'Anajô' ou 'Jonathan'.
+    emp_name = django_filters.CharFilter(field_name='emp_name', lookup_expr='icontains')
+
+    # RangeFilter: Cria automaticamente dois campos de busca na API para trabalhar com intervalos (Mínimo e Máximo).
+    # Na prática, gera os parâmetros de URL: '?id_min=valor' e '?id_max=valor'.
+    # Exemplo: /api/employees/?id_min=10&id_max=20 (Retorna os funcionários com IDs de 10 a 20).
+    id = django_filters.RangeFilter(field_name='id')
+
     # --- OUTROS EXEMPLOS ÚTEIS QUE VOCÊ PODE ADICIONAR ---
     
     # 1. Filtro por aproximação/contém (Ex: /api/employees/?name=silva)
@@ -33,4 +43,8 @@ class EmployeeFilter(django_filters.FilterSet):
         # Como 'designation' já foi declarado manualmente acima com regras customizadas,
         # você pode listar outros campos aqui para busca simples por igualdade exata.
         # Exemplo: fields = ['designation', 'department', 'is_active']
-        fields = ['designation']
+        # Adicionado emp_name para registrar formalmente o campo de busca por nome na estrutura do filtro.
+        # Garante que o campo customizado 'emp_name' seja reconhecido e exibida na interface da API
+        # Adicionado id para mapear o RangeFilter na estrutura do FilterSet.
+        # Permite que a API reconheça as propriedades de intervalo para a chave primária (ID).
+        fields = ['designation', 'emp_name', 'id']
