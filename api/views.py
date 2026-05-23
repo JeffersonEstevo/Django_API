@@ -44,6 +44,9 @@ from employees.models import Employee
 from blogs.models import Blog, Comment # Adicionado para classes Blog e comment
 from blogs.serializers import BlogSerializer, CommentSerializer # Adicionado para classes Blog e comment
 
+# Importa a classe de paginação customizada que foi criado no arquivo 'paginations.py'.
+from .paginations import CustomPagination # Utilizado para paginação dos Funcionários (Employees)
+
 # O decorador @api_view garante que a função só aceite os métodos GET e POST,
 # além de permitir que a resposta seja formatada automaticamente para JSON ou Web Browsable API.
 @api_view(['GET', 'POST'])
@@ -375,6 +378,9 @@ class EmployeeViewset(viewsets.ModelViewSet):
     # Define o serializador padrão. O ModelViewSet usa essa classe de forma automática para validar os dados
     # recebidos (no POST/PUT) e transformar os objetos do banco em formato JSON (no GET).
     serializer_class = EmployeeSerializer
+
+    # Ativa a paginação customizada especificamente para este ViewSet, ignorando a configuração global do settings.py.
+    pagination_class = CustomPagination
 
 # generics.ListCreateAPIView ativa automaticamente os métodos HTTP GET (lista) e POST (criação).
 class BlogsView(generics.ListCreateAPIView):
