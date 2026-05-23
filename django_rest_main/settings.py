@@ -63,7 +63,8 @@ INSTALLED_APPS = [
     'students', # Adicionado após criação do app com comando 'python .\manage.py startapp students'
     'api', # Adicionado para o app principal api
     'employees', # Adicionado após criação do app com comando 'python .\manage.py startapp employees'
-    'blogs' # Adicionado após criação do app com comando 'python .\manage.py startapp blogs
+    'blogs', # Adicionado após criação do app com comando 'python .\manage.py startapp blogs
+    'django_filters', # Adicionado para filtros no django, usado em (Employees)
 ]
 
 MIDDLEWARE = [
@@ -170,4 +171,10 @@ REST_FRAMEWORK = {
     # Determina a quantidade estrita de itens exibidos por página.
     # Neste caso, cada resposta de lista retornará no máximo 2 registros.
     'PAGE_SIZE': 2,
+
+    # O filtro global foi adicionado para permitir a filtragem automática de queries na API
+    # utilizando os parâmetros da URL (ex: /api/produtos/?categoria=eletronicos).
+    # Foi necessário registrar aqui para que o django-filter se integre nativamente com o
+    # Django REST Framework em todas as Views sem precisar declarar em cada uma delas.
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }

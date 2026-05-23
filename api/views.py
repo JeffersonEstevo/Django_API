@@ -382,6 +382,11 @@ class EmployeeViewset(viewsets.ModelViewSet):
     # Ativa a paginação customizada especificamente para este ViewSet, ignorando a configuração global do settings.py.
     pagination_class = CustomPagination
 
+    # Define quais campos do modelo estarão disponíveis para filtragem na URL da API.
+    # Exemplo de uso na requisição: /api/sua-rota/?designation=valor
+    filterset_fields = ['designation']
+
+
 # generics.ListCreateAPIView ativa automaticamente os métodos HTTP GET (lista) e POST (criação).
 class BlogsView(generics.ListCreateAPIView):
     # Define a base de dados (todos os registros) que a view irá consultar.
