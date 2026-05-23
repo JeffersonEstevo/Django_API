@@ -54,7 +54,10 @@ from employees.filters import EmployeeFilter
 
 # Importa o SearchFilter, uma classe nativa do REST Framework para busca textual simples.
 # Diferente do django-filter (que busca por campos exatos), o SearchFilter funciona como um buscador de "barra de pesquisa".
-from rest_framework.filters import SearchFilter
+# Importa o OrderingFilter, classe nativa do REST Framework que permite ao usuário
+# ordenar os resultados retornados pela API (como ordenar por data, título, ID, etc.).
+from rest_framework.filters import SearchFilter, OrderingFilter
+
 
 # O decorador @api_view garante que a função só aceite os métodos GET e POST,
 # além de permitir que a resposta seja formatada automaticamente para JSON ou Web Browsable API.
@@ -411,11 +414,18 @@ class BlogsView(generics.ListCreateAPIView):
     serializer_class = BlogSerializer
 
     # Define que esta View usará especificamente o mecanismo de busca textual (SearchFilter) como seu backend.
-    filter_backends = [SearchFilter]
+    # Adiciona o OrderingFilter à lista de backends. Agora esta View suporta 
+    # TANTO a busca textual (SearchFilter) QUANTO a ordenação de resultados (OrderingFilter).
+    filter_backends = [SearchFilter, OrderingFilter]
     # Especifica em quais colunas do banco de dados a pesquisa digitada pelo usuário será realizada.
     # '^blog_title': O símbolo '^' aplica uma busca do tipo "começa com" (starts-with). O título deve iniciar com o termo buscado.
     # 'blog_body': Sem símbolos, aplica uma busca padrão do tipo "contém" (icontains) em qualquer parte do corpo do texto.
     search_fields = ['^blog_title', 'blog_body']
+
+    # Define estritamente quais campos do banco de dados o usuário tem permissão para ordenar.
+    # Evita que campos internos ou pesados sejam usados na ordenação, protegendo a performance do banco.
+    Ordering_fields = ['id', 'blog_title']
+
 
 class CommentsView(generics.ListCreateAPIView):
     # Define a base de dados contendo todos os comentários cadastrados.

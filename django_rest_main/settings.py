@@ -181,5 +181,12 @@ REST_FRAMEWORK = {
     # Altera o nome do parâmetro que o usuário digita na URL para realizar a pesquisa.
     # Por padrão o Django usa '?search=termo'. Com essa configuração, ele passa a aceitar '?q=termo'.
     # Exemplo prático na URL: /api/blogs/?q=tecnologia
-    'SEARCH_PARAM': 'q'
+    'SEARCH_PARAM': 'q',
+
+    # Altera o nome do parâmetro que o usuário digita na URL para controlar a ordenação.
+    # O padrão do Django é '?ordering=campo'. Com isso, muda para '?order-by=campo'.
+    # Exemplo crescente: /api/blogs/?order-by=blog_title
+    # Exemplo decrescente (basta usar o sinal de menos '-'): /api/blogs/?order-by=-blog_title
+    'ORDERING_PARAM': 'order-by',
 }
+    
